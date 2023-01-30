@@ -35,7 +35,6 @@ def get_algo():
     return get_base_algo(PPOConfig, maxpool_heuristic).training()
 
 
-if False:
-    runner.test_job(get_algo())
-else:
+runner.test_job(get_algo())
+if True:
     runner.run_job(get_algo(), "maxpool_heuristic", cycles=600)

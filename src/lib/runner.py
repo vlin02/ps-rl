@@ -8,14 +8,20 @@ from lib.utils import TermColors, infx
 
 class Runner:
     def __init__(self):
-        self.result_dir = Path("..") / "result"
-        self.tmpdir = Path("..") / "result_tmp"
+        self.data_dir = Path("..") / "out"
+        self.result_dir = self.data_dir / "result"
+        self.tmp_dir = self.data_dir / "tmp"
 
-    def run_job(self, conf: AlgorithmConfig, job_name, save_freq=5, cycles=120):
+        for dir in [self.data_dir, self.result_dir, self.tmp_dir]:
+            dir.mkdir(exist_ok=True)
+
+    def run_job(self, conf: AlgorithmConfig, job_name: str, save_freq=5, cycles=120):
 
         job_dir = self.result_dir / job_name
 
         conf.framework("torch")
+
+        job_dir.mkdir(exist_ok=True, parents=True)
         conf.debugging(logger_creator=path_logger_creator(job_dir))
 
         algo = conf.build(use_copy=False)
@@ -40,16 +46,15 @@ class Runner:
             prune_checkpoints(job_dir)
 
     def test_job(self, conf: AlgorithmConfig):
-        dir = Path(tempfile.mkdtemp(dir= str(self.tmpdir)))
+        job_dir = Path(tempfile.mkdtemp(dir= str(self.tmp_dir)))
+
         conf.framework("torch")
         conf.training(train_batch_size=256)
         conf.rollouts(num_rollout_workers=1)
-        conf.debugging(
-            logger_creator=path_logger_creator(
-                dir
-            )
-        )
+        
+        job_dir.mkdir(exist_ok=True, parents=True)
+        conf.debugging(logger_creator=path_logger_creator(job_dir))
 
-        infx(dir.name)
+        infx(job_dir.absolute())
         algo = conf.build(use_copy=False)
         algo.train()
