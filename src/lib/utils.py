@@ -20,3 +20,10 @@ def get_module_name(module):
 
 def get_date_file_name():
     return time.strftime("%m-%d %H:%M:%S")
+
+def time_execution(fn):
+    start = time.time()
+
+    fn()
+
+    print(f'{time.time() - start} seconds')

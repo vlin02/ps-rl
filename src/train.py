@@ -1,7 +1,7 @@
 from ray.rllib.algorithms import AlgorithmConfig
 from ray.rllib.algorithms.ppo import PPOConfig
 from lib.ray import WinRateCallback, apply_model
-from lib.runner import Runner
+from lib.runner import Runner, apply_job
 
 
 def apply_base(config: AlgorithmConfig):
@@ -12,29 +12,24 @@ def apply_base(config: AlgorithmConfig):
     )
 
 
-from jobs import maxpool_heuristic, type_embed, baseline_base_power
+from jobs import (
+    maxpool_heuristic,
+    type_embed,
+    baseline_base_power,
+    embed_norm2,
+    embed_scale_freq,
+)
 
-runner = Runner()
 
-
-def get_base_algo(conf_cls, mod) -> AlgorithmConfig:
-    conf = (
-        conf_cls()
-        .environment(env=mod.Env)
+def init_config(config, job):
+    return (
+        apply_job(config, job)
         .rollouts(num_rollout_workers=8)
         .callbacks(WinRateCallback)
         .resources(num_gpus=0)
     )
 
-    if mod.Model:
-        apply_model(conf, mod.Model)
-    return conf
+runner = Runner()
 
-
-def get_algo():
-    return get_base_algo(PPOConfig, maxpool_heuristic).training()
-
-
-runner.test_job(get_algo())
-if True:
-    runner.run_job(get_algo(), "maxpool_heuristic", cycles=600)
+runner.run_job(init_config(PPOConfig(), embed_norm2), "embed_norm2", cycles=150)
+runner.run_job(init_config(PPOConfig(), embed_scale_freq), "embed_scale_freq", cycles=150)

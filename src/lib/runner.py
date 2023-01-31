@@ -1,16 +1,19 @@
 from pathlib import Path
 import tempfile
-from lib.ray import find_checkpoints, path_logger_creator, prune_checkpoints
+from lib.ray import apply_model, find_checkpoints, path_logger_creator, prune_checkpoints
 from ray.rllib.algorithms import AlgorithmConfig
 
 from lib.utils import TermColors, infx
 
+OUT_DIR = Path("..") / "out"
+RESULT_DIR = OUT_DIR / "result"
+TMP_DIR = OUT_DIR / "tmp"
 
 class Runner:
     def __init__(self):
-        self.data_dir = Path("..") / "out"
-        self.result_dir = self.data_dir / "result"
-        self.tmp_dir = self.data_dir / "tmp"
+        self.data_dir = OUT_DIR
+        self.result_dir = RESULT_DIR
+        self.tmp_dir = TMP_DIR
 
         for dir in [self.data_dir, self.result_dir, self.tmp_dir]:
             dir.mkdir(exist_ok=True)
@@ -58,3 +61,12 @@ class Runner:
         infx(job_dir.absolute())
         algo = conf.build(use_copy=False)
         algo.train()
+
+
+def apply_job(config, job) -> AlgorithmConfig:
+    config.environment(env=job.Env)
+
+    if job.Model:
+        apply_model(config, job.Model)
+    
+    return config
