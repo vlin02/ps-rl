@@ -2,3 +2,5 @@ out/
 .DS_Store/
 __pycache__/
 pokemon-showdown/
+
+.justfile

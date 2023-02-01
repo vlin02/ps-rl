@@ -1,0 +1,9 @@
+run-tb:
+    tensorboard --logdir=out/result    
+run-ps:
+    kill -9 $(lsof -ti:8000) || true
+    cd pokemon-showdown; node pokemon-showdown start --no-security & 
+install-ps:
+    git clone https://github.com/smogon/pokemon-showdown.git
+pip-deps:
+    pip install -U "ray[tune]" "ray[rllib]" poke_env pytorch black numpy==1.23.5 tensorboard
