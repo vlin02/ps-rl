@@ -22,8 +22,6 @@ class Runner:
 
         job_dir = self.result_dir / job_name
 
-        conf.framework("torch")
-
         job_dir.mkdir(exist_ok=True, parents=True)
         conf.debugging(logger_creator=path_logger_creator(job_dir))
 
@@ -48,17 +46,22 @@ class Runner:
 
             prune_checkpoints(job_dir)
 
-    def test_job(self, conf: AlgorithmConfig):
-        job_dir = Path(tempfile.mkdtemp(dir= str(self.tmp_dir)))
+    def apply_tmp(self, conf: AlgorithmConfig):
+        job_dir = Path(tempfile.mkdtemp(dir=str(self.tmp_dir)))
 
-        conf.framework("torch")
-        conf.training(train_batch_size=256)
-        conf.rollouts(num_rollout_workers=1)
-        
         job_dir.mkdir(exist_ok=True, parents=True)
         conf.debugging(logger_creator=path_logger_creator(job_dir))
 
+        return job_dir.absolute()
+
+    def test_job(self, conf: AlgorithmConfig):
+        
+        conf.training(train_batch_size=256)
+        conf.rollouts(num_rollout_workers=1)
+
+        job_dir = self.apply_tmp(conf)
         infx(job_dir.absolute())
+
         algo = conf.build(use_copy=False)
         algo.train()
 

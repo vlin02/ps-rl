@@ -16,7 +16,7 @@ class VsHeuristicEnv(Gen8EnvSinglePlayer):
 
         opponent = SimpleHeuristicsPlayer(
             battle_format=format,
-            player_configuration=PlayerConfiguration(f"opp #{randId}", None),
+            player_configuration=PlayerConfiguration(f"opp{randId}", None),
             server_configuration=server_configuration,
             max_concurrent_battles=200
         )
@@ -25,7 +25,6 @@ class VsHeuristicEnv(Gen8EnvSinglePlayer):
             opponent=opponent,
             battle_format=format,
             start_challenging=True,
-            player_configuration=PlayerConfiguration(f"rl #{randId}", None),
+            player_configuration=PlayerConfiguration(f"rl{randId}", None),
             server_configuration=server_configuration,
-            
         )

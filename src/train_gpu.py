@@ -26,10 +26,11 @@ def init_config(config, job):
         apply_job(config, job)
         .rollouts(num_rollout_workers=8)
         .callbacks(WinRateCallback)
-        .resources(num_gpus=0)
+        .resources(num_gpus=1)
+        .framework("torch")
     )
 
 runner = Runner()
 
-runner.run_job(init_config(PPOConfig(), embed_norm2), "embed_norm2", cycles=150)
-runner.run_job(init_config(PPOConfig(), embed_scale_freq), "embed_scale_freq", cycles=150)
+runner.test_job(init_config(PPOConfig(), embed_norm2))
+# runner.run_job(init_config(PPOConfig(), embed_scale_freq), "embed_scale_freq", cycles=150)
